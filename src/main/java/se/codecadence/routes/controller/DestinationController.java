@@ -4,7 +4,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
+import se.codecadence.routes.dto.DestinationDTO;
 import se.codecadence.routes.entities.Destination;
+import se.codecadence.routes.mapper.DestinationMapper;
 import se.codecadence.routes.service.DestinationService;
 
 import org.springframework.data.domain.Page;
@@ -18,25 +20,38 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/v1/destinations")
+@RequestMapping({"/api/v1/destinations", "/api/v1/destinations/"})
 public class DestinationController {
 
     private final DestinationService destinationService;
+    private final DestinationMapper destinationMapper;
 
     @GetMapping
-    public ResponseEntity<PagedModel<EntityModel<Destination>>> getDestinations(Pageable pageable,
-            PagedResourcesAssembler<Destination> assembler) {
-        Page<Destination> destinationPage = destinationService.getDestinations(pageable);
-        return ResponseEntity.ok(assembler.toModel(destinationPage));
+    public ResponseEntity<PagedModel<EntityModel<DestinationDTO>>> getDestinations(Pageable pageable,
+            PagedResourcesAssembler<DestinationDTO> assembler) {
+
+
+        Page<Destination> destinations = destinationService.getDestinations(pageable);
+        Page<DestinationDTO> destinationDTOs = destinations.map(destinationMapper::toDTO);
+        PagedModel<EntityModel<DestinationDTO>> destinationPage = assembler.toModel(destinationDTOs, dto -> {
+                EntityModel<DestinationDTO> model = EntityModel.of(dto);
+                model.add(org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
+                        .linkTo(org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn(DestinationController.class)
+                                .getDestinationById(dto.id()))
+                        .withSelfRel());
+                return model;
+            });
+        return ResponseEntity.ok(destinationPage);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<Destination>> getDestinationById(@PathVariable Long id) {
+    @GetMapping({"/{id}", "/{id}/"})
+    public ResponseEntity<EntityModel<DestinationDTO>> getDestinationById(@PathVariable Long id) {
         Destination destination = destinationService.getDestinationById(id);
         if (destination == null) {
             return ResponseEntity.notFound().build();
         }
-        EntityModel<Destination> model = EntityModel.of(destination);
+
+        EntityModel<DestinationDTO> model = EntityModel.of(destinationMapper.toDTO(destination));
 
         model.add(org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
                 .linkTo(org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn(DestinationController.class)

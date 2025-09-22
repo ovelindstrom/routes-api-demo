@@ -4,6 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import org.springframework.boot.CommandLineRunner;
+
+import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.context.annotation.Bean;
 
 import se.codecadence.routes.entities.Bus;
@@ -49,15 +51,15 @@ public class RoutesApiApplication {
 				route.setDescription("Description for Route " + i);
 				route.setDistance(50.0 + i * 10); // example distance
 				route.setDuration(java.time.Duration.ofMinutes(60 + i * 15)); //
-				route.setFromDestination(destinationRepository.findById((long) (Math.random() * 100) + 1).orElse(null));
-				route.setToDestination(destinationRepository.findById((long) (Math.random() * 100) + 1).orElse(null));
+				route.setFromDestination(destinationRepository.findById((long) (ThreadLocalRandom.current().nextDouble() * 100) + 1).orElse(null));
+				route.setToDestination(destinationRepository.findById((long) (ThreadLocalRandom.current().nextDouble() * 100) + 1).orElse(null));
 
 				// Get a random number 1 to 3
 
-				int numberOfBuses = (int) (Math.random() * 8) + 1;
+				int numberOfBuses = (int) (ThreadLocalRandom.current().nextDouble() * 8) + 1;
 				// Get that many random buses and add to a List of buses
 				for (int j = 0; j < numberOfBuses; j++) {
-					Bus bus = busRepository.findById((long) (Math.random() * 88) + 1).orElse(null);
+					Bus bus = busRepository.findById((long) (ThreadLocalRandom.current().nextDouble() * 88) + 1).orElse(null);
 					if (bus != null && !route.getAssignedBuses().contains(bus)) {
 						route.getAssignedBuses().add(bus);
 					}

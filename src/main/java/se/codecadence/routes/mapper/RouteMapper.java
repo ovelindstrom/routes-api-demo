@@ -1,4 +1,4 @@
-package se.codecadence.routes.entities;
+package se.codecadence.routes.mapper;
 
 import java.time.Duration;
 import java.util.stream.Collectors;
@@ -6,9 +6,10 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
-import se.codecadence.routes.controller.dto.RouteDTO;
-import se.codecadence.routes.controller.dto.RouteRequestDTO;
 import se.codecadence.routes.service.DestinationService;
+import se.codecadence.routes.dto.RouteDTO;
+import se.codecadence.routes.dto.RouteRequestDTO;
+import se.codecadence.routes.entities.Route;
 import se.codecadence.routes.service.BusService;
 
 @Service

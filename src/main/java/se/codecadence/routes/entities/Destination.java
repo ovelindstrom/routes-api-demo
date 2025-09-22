@@ -1,5 +1,7 @@
 package se.codecadence.routes.entities;
 
+import org.springframework.hateoas.server.core.Relation;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,6 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "destinations")
+@Relation(collectionRelation = "destinations", itemRelation = "destination")
 public class Destination {
     
     @Id

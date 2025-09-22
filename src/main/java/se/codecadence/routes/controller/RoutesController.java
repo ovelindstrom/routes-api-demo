@@ -1,14 +1,12 @@
 package se.codecadence.routes.controller;
 
 import java.util.Optional;
-import java.util.logging.Logger;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
-
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,10 +26,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-import se.codecadence.routes.controller.dto.RouteDTO;
-import se.codecadence.routes.controller.dto.RouteRequestDTO;
+import se.codecadence.routes.dto.RouteDTO;
+import se.codecadence.routes.dto.RouteRequestDTO;
 import se.codecadence.routes.entities.Route;
-import se.codecadence.routes.entities.RouteMapper;
+import se.codecadence.routes.mapper.RouteMapper;
 import se.codecadence.routes.service.RouteService;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,14 +40,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.afford;
 import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
-@RequestMapping("/api/v1/routes")
+@RequestMapping({"/api/v1/routes", "/api/v1/routes/"})
 @AllArgsConstructor
 public class RoutesController {
 
     private final RouteService routeService;
     private final RouteMapper routeMapper;
-
-    private final static Logger LOGGER = Logger.getLogger(RoutesController.class.getName());
 
     /**
      * Retrieves a paginated list of routes.
@@ -174,7 +170,7 @@ public class RoutesController {
     }
 
     // Delete Route
-    @DeleteMapping("/{id}")
+    @DeleteMapping({"/{id}", "/{id}/"})
     public ResponseEntity<Void> deleteRoute(@PathVariable Long id) {
         Optional<Route> existingRoute = routeService.deleteRoute(id);
         if (existingRoute.isEmpty()) {

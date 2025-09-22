@@ -1,4 +1,4 @@
-package se.codecadence.routes.controller.dto;
+package se.codecadence.routes.dto;
 
 import java.util.List;
 
