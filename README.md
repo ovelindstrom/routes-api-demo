@@ -50,6 +50,7 @@ A demo project for building robust and well-designed REST APIs using Spring Boot
 
 ### Run with Size Argument (for demo data initialization)
 Pass a size argument to control the amount of initial data:
+- `NONE`: No data
 - `SMALL`: Minimal data
 - `MEDIUM`: Moderate data
 - `LARGE`: Extensive data

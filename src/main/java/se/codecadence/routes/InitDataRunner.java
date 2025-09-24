@@ -25,7 +25,7 @@ public class InitDataRunner implements CommandLineRunner {
     Logger logger = Logger.getLogger(InitDataRunner.class.getName());
 
     enum GEN_SIZE {
-        SMALL(10, 8, 10), MEDIUM(100, 88, 100), LARGE(1000, 888, 1000), HUGE(100_000, 8888, 100_000);
+        NONE(0,0,0),SMALL(10, 8, 10), MEDIUM(100, 88, 100), LARGE(1000, 888, 1000), HUGE(100_000, 8888, 100_000);
 
         private final int routeCount;
         private final int busCount;
@@ -82,6 +82,12 @@ public class InitDataRunner implements CommandLineRunner {
             }
         } else {
             logger.info("No GEN_SIZE argument provided. Using default MEDIUM size.");
+        }
+
+        if (genSize == GEN_SIZE.NONE) {
+            logger.info("GEN_SIZE is NONE. No data will be generated.");
+            return;
+            
         }
 
         Faker faker = new Faker(Locale.of("sv"), new RandomService());
