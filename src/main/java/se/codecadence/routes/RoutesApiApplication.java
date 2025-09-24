@@ -5,8 +5,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import org.springframework.boot.CommandLineRunner;
 
+import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.context.annotation.Bean;
+
+import com.github.javafaker.Faker;
+import com.github.javafaker.service.RandomService;
 
 import se.codecadence.routes.entities.Bus;
 import se.codecadence.routes.entities.Destination;
@@ -25,20 +29,25 @@ public class RoutesApiApplication {
 	@Bean
 	public CommandLineRunner initRoutesData(RoutesRepository routesRepository, DestinationRepository destinationRepository, BusRepository busRepository) {
 		return args -> {
+
+			Faker faker = new Faker(Locale.of("sv"), new RandomService());
+
 			// Generate and save 100 sample Destinations
 			for (int i = 1; i <= 100; i++) {
+				var fakeDestination = faker.address();
 				Destination destination = new Destination();
-				destination.setName("Destination " + i);
-				destination.setCity("City of " + i);
-				destination.setCountry("Country of " + i);
-				destination.setCode("CODE-" + i);
+				destination.setName(fakeDestination.cityName());
+				destination.setCity(fakeDestination.city());
+				destination.setCountry(fakeDestination.country());
+				destination.setCode("CODE-" + fakeDestination.zipCode());
 				destinationRepository.save(destination);
 			}
 
 			// Generate and save 88 sample Buses
+	
 			for (int i = 1; i <= 88; i++) {
 				Bus bus = new Bus();
-				bus.setName("ABC-" + (100 + i));
+				bus.setName(faker.regexify("[A-Z]{3}-\\d{3}"));
 				bus.setMaxSeats(40 + i);
 				bus.setIsActive(true);
 				busRepository.save(bus);
@@ -47,12 +56,16 @@ public class RoutesApiApplication {
 			// Generate and save 100 sample Routes, each linked to a random Destination and Bus
 			for (int i = 1; i <= 10; i++) {
 				Route route = new Route();
-				route.setName("Route " + i);
-				route.setDescription("Description for Route " + i);
+
+				var fromDestination = destinationRepository.findById((long) (ThreadLocalRandom.current().nextDouble() * 100) + 1).orElse(null);
+				var toDestination = destinationRepository.findById((long) (ThreadLocalRandom.current().nextDouble() * 100) + 1).orElse(null);
+			
+				route.setName((fromDestination.getCity() + " : " + toDestination.getCity()));
+				route.setDescription("From " + fromDestination.getCity() + " to " + toDestination.getCity());
 				route.setDistance(50.0 + i * 10); // example distance
 				route.setDuration(java.time.Duration.ofMinutes(60 + i * 15)); //
-				route.setFromDestination(destinationRepository.findById((long) (ThreadLocalRandom.current().nextDouble() * 100) + 1).orElse(null));
-				route.setToDestination(destinationRepository.findById((long) (ThreadLocalRandom.current().nextDouble() * 100) + 1).orElse(null));
+				route.setFromDestination(fromDestination);
+				route.setToDestination(toDestination);
 
 				// Get a random number 1 to 3
 
