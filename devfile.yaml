@@ -1,0 +1,56 @@
+schemaVersion: 2.2.0
+metadata:
+  name: routes-api
+  version: 0.0.1
+  attributes:
+    alpha.dockerimage-port: 8080
+  displayName: Routes API
+  description: Spring Boot® application that exposes a REST API for managing routes.
+  icon: https://raw.githubusercontent.com/devfile-samples/devfile-stack-icons/main/spring.svg
+  tags:
+    - Java
+    - Spring
+  projectType: springboot
+  language: Java
+  provider: Code & Cadence by Ove Lindström
+  supportUrl: https://github.com/ovelindstrom/routes-api-demo/blob/openshift/README.md
+parent:
+  id: java-springboot
+  registryUrl: 'https://registry.devfile.io'
+  version: 2.2.0
+components:
+  - name: image-build
+    image:
+      imageName: java-springboot-image:latest
+      dockerfile:
+        uri: docker/Dockerfile
+        buildContext: .
+        rootRequired: false
+  - name: kubernetes-deploy
+    attributes:
+      deployment/replicas: 1
+      deployment/cpuRequest: 10m
+      deployment/memoryRequest: 180Mi
+      deployment/container-port: 8080
+    kubernetes:
+      uri: deploy.yaml
+      endpoints:
+        - name: http-8080
+          targetPort: 8080
+          path: /
+          secure: true
+commands:
+  - id: build-image
+    apply:
+      component: image-build
+  - id: deployk8s
+    apply:
+      component: kubernetes-deploy
+  - id: deploy
+    composite:
+      commands:
+        - build-image
+        - deployk8s
+      group:
+        kind: deploy
+        isDefault: true
