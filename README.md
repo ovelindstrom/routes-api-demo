@@ -141,6 +141,12 @@ The build includes OWASP Dependency-Check, which will fail if vulnerabilities wi
 ./mvnw dependency-check:check
 ```
 
+### Docker image
+Build it
+
+```bash
+podman build -t routes-api -f docker/Dockerfile .
+```
 ## The structure of the repo
 
 The `main` branch contains the sum of all blog posts in one. If you want to see what I have done for a specific blog post only, you can take a look at the branches. They are named as the blogposts series.
