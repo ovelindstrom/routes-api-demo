@@ -1,48 +1,47 @@
 package se.codecadence.routes.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import lombok.AllArgsConstructor;
+import java.util.List;
+
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import se.codecadence.routes.entities.Bus;
 import se.codecadence.routes.service.BusService;
 
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.PagedModel;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedResourcesAssembler;
-
-@RestController
-@RequestMapping({"/api/v1/buses", "/api/v1/buses/"})
-@AllArgsConstructor
+@RequestScoped
+@Path("/v1/buses")
 public class BusController {
 
+    @Inject
     private BusService busService;
 
-    @GetMapping
-    public ResponseEntity<PagedModel<EntityModel<Bus>>> getBuses(Pageable pageable,
-            PagedResourcesAssembler<Bus> assembler) {
-        Page<Bus> busPage = busService.getBuses(pageable);
-        return ResponseEntity.ok(assembler.toModel(busPage));
+    @Context
+    UriInfo uriInfo;
+
+
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBuses() {
+        List<Bus> busses = busService.getBuses();
+        return Response.ok(busses).build();
     }
 
-    @GetMapping({"/{id}", "/{id}/"})
-    public ResponseEntity<EntityModel<Bus>> getBusById(@PathVariable Long id) {
+    @GET
+    @Path("/{id}")
+    public Response getBusById(@jakarta.ws.rs.PathParam("id") Long id) {
         Bus bus = busService.getBusById(id);
         if (bus == null) {
-            return ResponseEntity.notFound().build();
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-        EntityModel<Bus> model = EntityModel.of(bus);
-        model.add(
-                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(BusController.class).getBusById(id)).withSelfRel());
-        model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(BusController.class).getBuses(null, null))
-                .withRel("buses"));
-        return ResponseEntity.ok(model);
+        return Response.ok(bus).build();
     }
 
 }

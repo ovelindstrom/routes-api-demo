@@ -1,7 +1,8 @@
 package se.codecadence.routes.entities;
 
-import org.springframework.hateoas.server.core.Relation;
+import java.io.Serializable;
 
+import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,21 +18,25 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "buses")
-@Relation(collectionRelation = "buses", itemRelation = "bus")
-public class Bus {
+public class Bus implements Serializable{
+    private static final long serialVersionUID = 1L;
     
     @Id
     @Column(name = "bus_id")
+    @JsonbProperty("bus_id")    
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name")
+    @JsonbProperty("name")  
     private String name;
 
     @Column(name = "max_seats")
+    @JsonbProperty("max_seats")
     private Integer maxSeats; // max number of passengers
     
     @Column(name = "is_active")
+    @JsonbProperty("is_active")
     private Boolean isActive;
 
 }

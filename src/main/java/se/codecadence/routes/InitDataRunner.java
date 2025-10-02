@@ -1,26 +1,26 @@
 package se.codecadence.routes;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
 
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import com.github.javafaker.Faker;
 import com.github.javafaker.service.RandomService;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import se.codecadence.routes.dao.BusRepository;
+import se.codecadence.routes.dao.DestinationRepository;
+import se.codecadence.routes.dao.RoutesRepository;
 import se.codecadence.routes.entities.Bus;
 import se.codecadence.routes.entities.Destination;
 import se.codecadence.routes.entities.Route;
-import se.codecadence.routes.repository.BusRepository;
-import se.codecadence.routes.repository.DestinationRepository;
-import se.codecadence.routes.repository.RoutesRepository;
 
-@Component
-public class InitDataRunner implements CommandLineRunner {
+@ApplicationScoped
+public class InitDataRunner {
 
     Logger logger = Logger.getLogger(InitDataRunner.class.getName());
 
@@ -50,32 +50,31 @@ public class InitDataRunner implements CommandLineRunner {
         }
     }
 
-    private final ApplicationArguments appArgs;
+    @Inject
     private RoutesRepository routesRepository;
+    @Inject
     private DestinationRepository destinationRepository;
+    @Inject
     private BusRepository busRepository;
 
-    public InitDataRunner(ApplicationArguments appArgs, RoutesRepository routesRepository,
-            DestinationRepository destinationRepository, BusRepository busRepository) {
-        this.appArgs = appArgs;
-        this.routesRepository = routesRepository;
-        this.destinationRepository = destinationRepository;
-        this.busRepository = busRepository;
-    }
+    @Inject
+    @ConfigProperty(name = "app.init.size", defaultValue = "MEDIUM")
+    private String genSizeParam;
 
-    @Override
-    public void run(String... args) throws Exception {
+
+
+    @PostConstruct
+    public void init() {
         // Initialization logic can go here if needed
-        // Get non-option arguments. Your 'small', 'medium', or 'large' will be here.
-        List<String> nonOptionArgs = appArgs.getNonOptionArgs();
+        logger.info("InitDataRunner started with genSizeParam: " + genSizeParam);
 
         // Default to MEDIUM if no argument is provided
 
         GEN_SIZE genSize = GEN_SIZE.MEDIUM;
-        if (!nonOptionArgs.isEmpty()) {
+        if (!genSizeParam.isEmpty()) {
             try {
                 // Access the first non-option argument
-                genSize = GEN_SIZE.valueOf(nonOptionArgs.get(0).toUpperCase());
+                genSize = GEN_SIZE.valueOf(genSizeParam.toUpperCase());
                 logger.info("Using data size: " + genSize);
             } catch (IllegalArgumentException e) {
                 logger.warning("Invalid GEN_SIZE argument. Using default MEDIUM size.");
@@ -148,3 +147,4 @@ public class InitDataRunner implements CommandLineRunner {
         }
     }
 }
+ 

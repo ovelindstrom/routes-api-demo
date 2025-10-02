@@ -1,23 +1,21 @@
 package se.codecadence.routes.service;
 
+import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import se.codecadence.routes.dao.RoutesRepository;
 import se.codecadence.routes.entities.Route;
-import se.codecadence.routes.repository.RoutesRepository;
 
-@Service
-@RequiredArgsConstructor
+@ApplicationScoped
 public class RouteService {
 
-    private final RoutesRepository routeRepository;
+    @Inject
+    private RoutesRepository routeRepository;
 
-    public Page<Route> getRoutes(Pageable pageable) {
-        return routeRepository.findAll(pageable);
+    public List<Route> getRoutes() {
+        return routeRepository.findAll();
     }
 
     public Route getRouteById(Long id) {

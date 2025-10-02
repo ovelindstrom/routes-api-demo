@@ -1,182 +1,109 @@
 package se.codecadence.routes.controller;
 
+import java.util.List;
 import java.util.Optional;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import lombok.AllArgsConstructor;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.MediaTypes;
-import org.springframework.hateoas.PagedModel;
-import org.springframework.hateoas.RepresentationModel;
-import org.springframework.hateoas.mediatype.hal.HalModelBuilder;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import se.codecadence.routes.dto.RouteDTO;
 import se.codecadence.routes.dto.RouteRequestDTO;
 import se.codecadence.routes.entities.Route;
 import se.codecadence.routes.mapper.RouteMapper;
 import se.codecadence.routes.service.RouteService;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.afford;
-import org.springframework.web.bind.annotation.PutMapping;
-
-@RestController
-@RequestMapping({"/api/v1/routes", "/api/v1/routes/"})
-@AllArgsConstructor
+@RequestScoped
+@Path("/v1/routes")
 public class RoutesController {
 
-    private final RouteService routeService;
-    private final RouteMapper routeMapper;
-
+    @Inject
+    private  RouteService routeService;
+    @Inject
+    private  RouteMapper routeMapper;
+    
     /**
-     * Retrieves a paginated list of routes.
-     * 
-     * @param pageable  the pagination information. Use page, size, sort parameters. 
-     *                  See <a href="https://docs.spring.io/spring-data/rest/reference/paging-and-sorting.html">Spring Data REST - Paging and Sorting</a>
-     * @return a ResponseEntity containing the paginated list of routes
+     * Retrieves all routes.
+     *
+     * @return a {@link ResponseEntity} containing a list of {@link RouteDTO} objects.
      */
-    @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
-    public ResponseEntity<PagedModel<EntityModel<RouteDTO>>> getRoutes(Pageable pageable,
-            PagedResourcesAssembler<Route> assembler) {
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRoutes() {
 
-        Page<Route> routePage = routeService.getRoutes(pageable);
+        List<Route> routes = routeService.getRoutes();
 
-        PagedModel<EntityModel<RouteDTO>> routesModel = assembler.toModel(routePage, route -> {
-            RouteDTO dto = routeMapper.toDTO(route);
-            EntityModel<RouteDTO> model = EntityModel.of(dto);
-            model.add(WebMvcLinkBuilder
-                    .linkTo(WebMvcLinkBuilder.methodOn(RoutesController.class).getRouteById(dto.getId(), null))
-                    .withSelfRel());
-            return model;
-        });
-
-        // The POST affordance is created from the createRoute method
-        Link createLink = linkTo(methodOn(RoutesController.class).getRoutes(null, null))
-                .withRel("create")
-                .andAffordance(afford(methodOn(RoutesController.class)
-                        .createRoute(new RouteRequestDTO(null, null, null, null, null, null, null))))
-                .withTitle("Create a new route with CreateRouteRequestDTO")
-                .withType(HttpMethod.POST.name());
-
-        routesModel.add(createLink);
-
-        return ResponseEntity.ok(routesModel);
+        List<RouteDTO> routeDTOs = routes.stream().map(routeMapper::toDTO).toList();
+        return Response.ok(routeDTOs).build();
     }
 
-    /**
-     * Retrieves a route by its ID.
-     *
-     * <p>
-     * Optionally embeds related resources in the response.
-     * </p>
-     *
-     * @param id the ID of the route to retrieve
-     * @param embed optional query parameter to embed related resources.
-     *              <ul>
-     *                  <li><b>buses</b>: embeds the assigned buses for the route</li>
-     *              </ul>
-     *              Other values are ignored.
-     * @return a {@link ResponseEntity} containing the HAL+JSON representation of the route,
-     *         or 404 Not Found if the route does not exist.
-     *
-     * <p>
-     * The HAL+JSON response includes links for self, edit, delete, and routes.
-     * If <code>embed=buses</code> is specified, the assigned buses are embedded in the response.
-     * </p>
-     */
-    @GetMapping(path = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
-    public ResponseEntity<RepresentationModel<?>> getRouteById(
-            @PathVariable Long id,
-            @RequestParam(required = false) String embed) {
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRouteById(
+            @jakarta.ws.rs.PathParam("id") Long id,
+            @jakarta.ws.rs.QueryParam("embed") String embed) {
         Route route = routeService.getRouteById(id);
         if (route == null) {
-            return ResponseEntity.notFound().build();
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
         RouteDTO dto = routeMapper.toDTO(route);
 
-        HalModelBuilder model = HalModelBuilder.halModelOf(dto);
-        // EntityModel<RouteDTO> model = EntityModel.of(dto);
-        model.link(linkTo(WebMvcLinkBuilder.methodOn(RoutesController.class).getRouteById(id, null))
-                .withSelfRel());
-
-        model.link(linkTo(methodOn(RoutesController.class).updateRoute(id, null))
-                .withRel("edit")
-                .withType(HttpMethod.PUT.name())
-                .withTitle("Edit this route with RouteRequestDTO"));
-        model.link(linkTo(methodOn(RoutesController.class).deleteRoute(id))
-                .withRel("delete")
-                .withType(HttpMethod.DELETE.name())
-                .withTitle("Delete this route"));
-        model.link(linkTo(WebMvcLinkBuilder.methodOn(RoutesController.class).getRoutes(null, null))
-                .withRel("routes"));
-
-        if ("buses".equals(embed)) {
-            route.getAssignedBuses().forEach(bus -> {
-                model.embed(EntityModel.of(bus)
-                        .add(linkTo(methodOn(BusController.class).getBusById(bus.getId())).withSelfRel()));
-            });
-        }
-
-        return ResponseEntity.ok(model.build());
+        // You may need to adjust the following HAL/links code to be compatible with JAX-RS or remove it if not supported.
+        // For now, return the DTO as a simple JSON response.
+        return Response.ok(dto).build();
     }
 
     // Create Route
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaTypes.HAL_JSON_VALUE)
-    public ResponseEntity<EntityModel<Route>> createRoute(@RequestBody RouteRequestDTO dto) {
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createRoute(RouteRequestDTO dto) {
 
         Route createdRoute = routeService.createRoute(routeMapper.toEntity(dto));
-        EntityModel<Route> model = EntityModel.of(createdRoute);
-        model.add(WebMvcLinkBuilder
-                .linkTo(WebMvcLinkBuilder.methodOn(RoutesController.class).getRouteById(createdRoute.getId(), null))
-                .withSelfRel());
-        return ResponseEntity.created(model.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(model);
+        java.net.URI location = jakarta.ws.rs.core.UriBuilder
+            .fromPath("/api/v1/routes/{id}")
+            .build(createdRoute.getId());
+        return Response.created(location).entity(routeMapper.toDTO(createdRoute)).build();
     }
 
     // Update Route
 
-    @PutMapping(path = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
-    public ResponseEntity<EntityModel<RouteDTO>> updateRoute(@PathVariable Long id, @RequestBody RouteRequestDTO dto) {
+    //@PutMapping(path = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    @PUT
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateRoute(@PathParam("id") Long id, RouteRequestDTO dto) {
         Route updatedRoute = routeService.updateRoute(id, routeMapper.toEntity(dto));
         if (updatedRoute == null) {
-            return ResponseEntity.notFound().build();
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
 
         RouteDTO routeDTO = routeMapper.toDTO(updatedRoute);
 
-        Link selfLink = WebMvcLinkBuilder
-                .linkTo(WebMvcLinkBuilder.methodOn(RoutesController.class).getRouteById(id, null))
-                .withSelfRel();
 
-        return ResponseEntity.ok(EntityModel.of(routeDTO, selfLink));
+        return Response.ok(routeDTO).build();
     }
 
     // Delete Route
-    @DeleteMapping({"/{id}", "/{id}/"})
-    public ResponseEntity<Void> deleteRoute(@PathVariable Long id) {
+    //@DeleteMapping(path = "/{id}")
+    @DELETE  
+    @Path("/{id}")
+    public Response deleteRoute(@PathParam("id") Long id) {
         Optional<Route> existingRoute = routeService.deleteRoute(id);
         if (existingRoute.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-        return ResponseEntity.noContent().build();
+        return Response.noContent().build();
     }
 
 }

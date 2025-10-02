@@ -1,10 +1,11 @@
 package se.codecadence.routes.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 public record CreateBusResponseDTO(
-    @JsonProperty("bus_id") Long id,
+
+    @JsonbProperty("bus_id") Long id,
     String name,
     Integer capacity,
-    @JsonProperty("is_active") Boolean isActive
+    @JsonbProperty("is_active") Boolean isActive
 ) {}

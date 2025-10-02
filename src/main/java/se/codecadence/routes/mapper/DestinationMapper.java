@@ -1,13 +1,11 @@
 package se.codecadence.routes.mapper;
 
-import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
+import jakarta.enterprise.context.ApplicationScoped;
 import se.codecadence.routes.dto.DestinationDTO;
 import se.codecadence.routes.entities.Destination;
 
-@Service
-@AllArgsConstructor
+@ApplicationScoped
 public class DestinationMapper {
     
     public DestinationDTO toDTO(Destination destination) {

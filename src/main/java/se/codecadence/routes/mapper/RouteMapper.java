@@ -3,21 +3,21 @@ package se.codecadence.routes.mapper;
 import java.time.Duration;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Service;
-
-import lombok.AllArgsConstructor;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import se.codecadence.routes.service.DestinationService;
 import se.codecadence.routes.dto.RouteDTO;
 import se.codecadence.routes.dto.RouteRequestDTO;
 import se.codecadence.routes.entities.Route;
 import se.codecadence.routes.service.BusService;
 
-@Service
-@AllArgsConstructor
+@ApplicationScoped
 public class RouteMapper {
 
-    private final BusService busService;
-    private final DestinationService destinationService;
+    @Inject
+    private BusService busService;
+    @Inject
+    private DestinationService destinationService;
 
     public Route toEntity(RouteRequestDTO dto) {
         Route route = new Route();
@@ -25,7 +25,7 @@ public class RouteMapper {
         route.setDescription(dto.description());
         route.setDistance(dto.distanceInKm());
         route.setDuration(Duration.ofMinutes(dto.durationInMinutes()));
-        
+
         route.setFromDestination(destinationService.getDestinationById(dto.fromDestinationId()));
         route.setToDestination(destinationService.getDestinationById(dto.toDestinationId()));
         route.setAssignedBuses(dto.assignedBusIds().stream()
@@ -36,18 +36,17 @@ public class RouteMapper {
 
     public RouteDTO toDTO(Route route) {
         return new RouteDTO(
-            route.getId(),
-            route.getName(),
-            route.getDescription(),
-            route.getFromDestination().getName(),
-            route.getToDestination().getName(),
-            route.getDistance(),
-            route.getDuration(),
-            route.getAssignedBuses().stream()
-                .map(bus -> bus.getName())
-                .collect(Collectors.toList()),
-            route.getMaxNumberOfPassengers()
-        );
+                route.getId(),
+                route.getName(),
+                route.getDescription(),
+                route.getFromDestination().getName(),
+                route.getToDestination().getName(),
+                route.getDistance(),
+                route.getDuration(),
+                route.getAssignedBuses().stream()
+                        .map(bus -> bus.getName())
+                        .collect(Collectors.toList()),
+                route.getMaxNumberOfPassengers());
     }
 
 }

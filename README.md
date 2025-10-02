@@ -1,4 +1,4 @@
-# The Bus Routes API
+# The Bus Routes API - Open Liberty version
 
 This is a little demo project that is used to explain and describe how to do a couple of different things when it comes to designing nice REST APIs with Spring Boot.
 
@@ -9,18 +9,17 @@ The blog post where I describe the principles are:
 
 ## Description
 
-A demo project for building robust and well-designed REST APIs using Spring Boot. This application showcases best practices for API development, including HATEOAS, GraphQL, observability with Micrometer and OpenTelemetry, and security scanning with OWASP Dependency-Check.
+A demo project for building robust and well-designed REST APIs. This application showcases best practices for API development, observability with Micrometer and OpenTelemetry, and security scanning with OWASP Dependency-Check.
+
+**This version is using Jakarta EE 10 and Open Liberty 25 as a server.**
 
 ## Features
 
 - **RESTful Endpoints**: Full CRUD operations for routes, buses, and destinations.
-- **HATEOAS Support**: HAL and HAL-FORMS with affordances for self-describing APIs.
-- **Pagination**: Pageable responses for large datasets.
 - **Validation**: Bean validation on request DTOs.
-- **Observability**: Micrometer metrics exported to OpenTelemetry.
 - **Security Scanning**: OWASP Dependency-Check fails builds on high-severity vulnerabilities (CVSS >= 7.0).
-- **In-Memory Database**: H2 for easy testing and development.
-- **Actuators**: Health checks, metrics, and info endpoints.
+- **In-Memory Database**: DerbyDB for easy testing and development.
+- **Actuators**: Health checks.
 
 ## Prerequisites
 
@@ -45,10 +44,16 @@ A demo project for building robust and well-designed REST APIs using Spring Boot
 
 ### Basic Run
 ```bash
-./mvnw spring-boot:run
+./mvnw liberty:run
+```
+
+### Dev Server
+```bash
+./mvnw liberty:dev
 ```
 
 ### Run with Size Argument (for demo data initialization)
+** Currently the init does not trigger for some reason **
 Pass a size argument to control the amount of initial data:
 - `NONE`: No data
 - `SMALL`: Minimal data
@@ -57,22 +62,24 @@ Pass a size argument to control the amount of initial data:
 - `HUGE`: Ridiculous amounts of data
 
 ```bash
-./mvnw spring-boot:run -Dspring-boot.run.arguments="--size=LARGE"
+./mvnw liberty:run -Dspring-boot.run.arguments="--size=LARGE"
 ```
 
-The application will start on `http://localhost:8080`.
+The Open Liberty runs the following web applications:
+JTW Endpoint          http://localhost:9080/jwt/
+Open API dictionary   http://localhost:9080/openapi/
+Open API UI           http://localhost:9080/openapi/ui/
+Health Check          http://localhost:9080/health/
+Routes API            http://localhost:9080/routes/
 
-## HAL Explorer
-
-The POM entry `<artifactId>spring-data-rest-hal-explorer</artifactId>` adds a nice little UI that can be used to explore the API and play around with it. It is found under http://localhost:8080/explorer/index.html#uri=http://localhost:8080/api/v1
 
 ## Usage
 
 ### API Endpoints
 
 - **Routes**:
-  - `GET /api/v1/routes` - List routes (paginated, HAL)
-  - `GET /api/v1/routes/{id}` - Get route by ID (with affordances)
+  - `GET /api/v1/routes` - List all routes 
+  - `GET /api/v1/routes/{id}` - Get route by ID
   - `POST /api/v1/routes` - Create a new route
   - `PUT /api/v1/routes/{id}` - Update a route
   - `DELETE /api/v1/routes/{id}` - Delete a route
@@ -114,7 +121,8 @@ I am using Open Telemetry to showcase logging and metrics.
 If you run this example, first start the All-in-one Open Telemetry, not in any way production worthy but useful for local development, Grafana image.
 
 ```sh
-podman run -p 3000:3000 -p 4317:4317 -p 4318:4318 --rm -ti grafana/otel-lgtm
+podman network create otel-dev-net
+podman run --name otel --network otel-dev-net -p 3000:3000 -p 4317:4317 -p 4318:4318 -ti grafana/otel-lgtm
 ```
 
 And then just open http://localhost:3000
@@ -141,12 +149,18 @@ The build includes OWASP Dependency-Check, which will fail if vulnerabilities wi
 ./mvnw dependency-check:check
 ```
 
+
+### Open Liberty
+
+Open a command line session, navigate to the installation directory, and run `./mvnw liberty:dev` (Linux/Mac) or `mvnw liberty:dev` (Windows). 
+
 ### Docker image
-Build it
 
 ```bash
-podman build -t routes-api -f docker/Dockerfile .
-```
+podman build -t routes-api .
+podman run -p 9080:9080 routes-api
+ ```
+
 ## The structure of the repo
 
 The `main` branch contains the sum of all blog posts in one. If you want to see what I have done for a specific blog post only, you can take a look at the branches. They are named as the blogposts series.

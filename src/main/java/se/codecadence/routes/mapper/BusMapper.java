@@ -1,16 +1,14 @@
 package se.codecadence.routes.mapper;
 
-import org.springframework.stereotype.Service;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import se.codecadence.routes.dto.BusDTO;
 import se.codecadence.routes.dto.CreateBusRequestDTO;
 import se.codecadence.routes.dto.CreateBusResponseDTO;
 import se.codecadence.routes.entities.Bus;
 
-@Service
-@AllArgsConstructor
+@ApplicationScoped
 public class BusMapper {
 
     public BusDTO toBusDTO(@NotNull Bus bus) {

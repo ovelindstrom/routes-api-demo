@@ -4,8 +4,6 @@ package se.codecadence.routes.dto;
 import java.time.Duration;
 import java.util.List;
 
-import org.springframework.hateoas.server.core.Relation;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -13,7 +11,6 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Relation(collectionRelation = "routes", itemRelation = "route")
 public class RouteDTO {
 
     private Long id;

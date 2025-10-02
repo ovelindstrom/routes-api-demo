@@ -1,8 +1,6 @@
 package se.codecadence.routes.dto;
 
-import org.springframework.hateoas.server.core.Relation;
 
-@Relation(collectionRelation = "destinations", itemRelation = "destination")
 public record DestinationDTO(
     Long id,
     String name,

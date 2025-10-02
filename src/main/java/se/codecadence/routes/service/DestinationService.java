@@ -1,21 +1,21 @@
 package se.codecadence.routes.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
+import java.util.List;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import se.codecadence.routes.dao.DestinationRepository;
 import se.codecadence.routes.entities.Destination;
-import se.codecadence.routes.repository.DestinationRepository;
 
-@Service
-@AllArgsConstructor
+@ApplicationScoped
 public class DestinationService {
 
-    private final DestinationRepository destinationRepository;
+    @Inject
+    private DestinationRepository destinationRepository;
 
-    public Page<Destination> getDestinations(Pageable pageable) {
-        return destinationRepository.findAll(pageable);
+    public List<Destination> getDestinations() {
+        return destinationRepository.findAll();
     }
 
     public Destination getDestinationById(Long id) {

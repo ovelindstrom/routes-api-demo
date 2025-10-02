@@ -1,21 +1,21 @@
 package se.codecadence.routes.service;
+    
+import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import lombok.AllArgsConstructor;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import se.codecadence.routes.dao.BusRepository;
 import se.codecadence.routes.entities.Bus;
-import se.codecadence.routes.repository.BusRepository;
 
-@Service
-@AllArgsConstructor
+@ApplicationScoped
 public class BusService {
 
-    private final BusRepository busRepository;
+    @Inject
+    private BusRepository busRepository;
 
-    public Page<Bus> getBuses(Pageable pageable) {
-        return busRepository.findAll(pageable);
+
+    public List<Bus> getBuses() {
+        return busRepository.findAll();
     }
 
     public Bus getBusById(Long id) {
