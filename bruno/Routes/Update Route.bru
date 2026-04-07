@@ -1,0 +1,28 @@
+meta {
+  name: Update Route
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrl}}/api/v1/routes/1
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/hal+json
+}
+
+body:json {
+  {
+    "name": "Stockholm to Gothenburg Express",
+    "description": "Express route between major cities",
+    "fromDestinationId": 1,
+    "toDestinationId": 2,
+    "distanceInKm": 450.0,
+    "durationInMinutes": 300,
+    "assignedBusIds": [1, 2, 3]
+  }
+}

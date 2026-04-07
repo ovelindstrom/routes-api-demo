@@ -1,0 +1,28 @@
+meta {
+  name: Create Route
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/v1/routes
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/hal+json
+}
+
+body:json {
+  {
+    "name": "Stockholm to Gothenburg",
+    "description": "Main route between major cities",
+    "fromDestinationId": 1,
+    "toDestinationId": 2,
+    "distanceInKm": 450.0,
+    "durationInMinutes": 360,
+    "assignedBusIds": [1, 2]
+  }
+}

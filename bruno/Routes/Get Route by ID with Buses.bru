@@ -1,0 +1,19 @@
+meta {
+  name: Get Route by ID with Buses
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/routes/1
+  body: none
+  auth: none
+}
+
+params:query {
+  embed: buses
+}
+
+headers {
+  Accept: application/hal+json
+}

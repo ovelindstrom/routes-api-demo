@@ -1,0 +1,20 @@
+meta {
+  name: Get Destinations
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/destinations
+  body: none
+  auth: none
+}
+
+params:query {
+  page: 0
+  size: 10
+}
+
+headers {
+  Accept: application/hal+json
+}
