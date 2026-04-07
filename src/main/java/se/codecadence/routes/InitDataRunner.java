@@ -75,9 +75,9 @@ public class InitDataRunner implements CommandLineRunner {
         if (!nonOptionArgs.isEmpty()) {
             try {
                 // Access the first non-option argument
-                genSize = GEN_SIZE.valueOf(nonOptionArgs.get(0).toUpperCase());
+                genSize = GEN_SIZE.valueOf(nonOptionArgs.getFirst().toUpperCase());
                 logger.info("Using data size: " + genSize);
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException _) {
                 logger.warning("Invalid GEN_SIZE argument. Using default MEDIUM size.");
             }
         } else {
