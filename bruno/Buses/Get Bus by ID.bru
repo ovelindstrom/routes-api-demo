@@ -1,0 +1,15 @@
+meta {
+  name: Get Bus by ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/buses/1
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/hal+json
+}

@@ -26,7 +26,7 @@ A demo project for building robust and well-designed REST APIs using Spring Boot
 
 - Java 21
 - Maven 3.6+
-- (Optional) Postman for API testing
+- (Optional) [Bruno](https://www.usebruno.com/) for API testing
 
 ## Installation
 
@@ -99,8 +99,8 @@ The POM entry `<artifactId>spring-data-rest-hal-explorer</artifactId>` adds a ni
 }
 ```
 
-### Postman Collection
-Import the `Routes.postman_collection.json` file into Postman for easy API testing.
+### Bruno Collection
+Open the `bruno/` folder as a collection in [Bruno](https://www.usebruno.com/) for easy API testing. Select the **localhost** environment to point requests at `http://localhost:8080`.
 
 ### Actuators
 - Health: `http://localhost:8080/actuator/health`
